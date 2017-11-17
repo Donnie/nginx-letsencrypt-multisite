@@ -4,6 +4,10 @@
 
 ### Set up SSH key on a Linode Box
 
+#### Linode
+
+Setup a new Linode with Ubuntu 16.04 LTS
+
 #### Create SSH key
 1. Download PuttyGen
 2. Start PuTTYgen
@@ -136,6 +140,8 @@ When asked to choose between `apache` and `lighttpd` choose none and simply pres
 
 The next prompt will ask if you would like `dbconfig-common` to configure a database for phpmyadmin to use. Select "Yes" to continue.
 
+The next prompt shall ask you for a password provide the root password for MySQL.
+
 ### Install Let's Encrypt (certbot) for SSL
 On Ubuntu systems, the Certbot team maintains a PPA. Once you add it to your list of repositories all you'll need to do is apt-get the following packages.
 
@@ -180,7 +186,7 @@ put `common.conf` with this text
 listen 80;
 
 location / {
-	try_files $uri $uri/ /index.php?q=$uri&$args;
+	try_files $uri $uri/ =404;
 }
 
 index index.php index.html index.htm index.nginx-debian.html;
