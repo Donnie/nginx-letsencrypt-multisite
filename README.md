@@ -2,8 +2,43 @@
 
 ## Installations
 
-### Linode Box
-1. SSH to your Linode VPS.
+### Set up SSH key on a Linode Box
+
+#### Create SSH key
+1. Download PuttyGen
+2. Start PuTTYgen
+3. Select SSH-2 RSA from the bottom menu of Type of key to generate
+4. Keep number of bits: 4096
+5. Click Generate button and move your mouse pointer randomly to generate random values
+6. Once the process is complete you would see the public key 
+7. Put a key name in the key comment field
+8. Save the public key to a file named key.pub
+9. Save the private key to a file named key.ppk
+10. Right-click on the text label showing the pub key value and save it as "authorized_keys"
+
+#### Configure SSH key
+1. SSH to your Linode VPS using your root password. You can use FileZilla or Putty both
+2. Create `/root/.ssh`
+
+`mkdir ~/.ssh`
+
+3. Change folder access permission
+
+`chmod 0700 ~/.ssh`
+
+4. Upload the "authorized_keys" file to `/root/.ssh`
+
+5. Change file access permission
+
+`chmod 0644 ~/.ssh/authorized_keys`
+
+You should now be able to login using the SSH key
+
+6. Edit your `/etc/ssh/sshd_config` file to change
+
+`PasswordAuthentication yes` to `PasswordAuthentication no`
+
+7. Hit reboot `reboot`
 
 ### Ubuntu 16.04 LTS
 First thing you should do after logging in via SSH is update
