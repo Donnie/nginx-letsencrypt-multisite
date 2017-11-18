@@ -296,7 +296,7 @@ server {
 }
 ```
 
-edit nginx SSL section add:
+open nginx.conf and replace the SSL section with this:
 
 ```
 ssl_protocols TLSv1.2;
@@ -368,13 +368,24 @@ Reload privileges
 
 `FLUSH PRIVILEGES;`
 
+exit mysql
+
 `exit`
 
 #### Get latest Wordpress version
+
+move to your files directory
+
 `cd /var/www/domain.ga/files`
+
+download the latest version of Wordpress
 
 `wget "https://wordpress.org/latest.zip";`
 
+Unzip it
+
 `unzip latest.zip`
+
+and move the contents to the files directory
 
 `mv -v wordpress/* /var/www/domain.ga/files/`
