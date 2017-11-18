@@ -271,29 +271,21 @@ Install certificates by --webroot plugin
 sudo certbot certonly --webroot -w /var/www/domain.ga/files/ -d domain.ga
 ```
 
-#### Create a strong Diffie-Hellman pair
+#### Create a strong Diffie-Hellman parameter
 
 `openssl dhparam -out /etc/letsencrypt/live/domain.ga/dhparam.pem 4096`
 
 #### Append Nginx SSL Server Block
 Open `/etc/nginx/sites-available/domain.ga`
 
-And put the below server block at the end of the file
+And put the below lines just before the closing brace
 
 ```
-server {
-	listen 443 ssl;
-		root /var/www/domain.ga/files;
-		server_name domain.ga;
-		access_log /var/www/domain.ga/log/access.log;
-		error_log /var/www/domain.ga/log/error.log;
-		include /etc/nginx/global/common.conf;
-	
+	listen 443 ssl;	
 	ssl on;
 	ssl_certificate /etc/letsencrypt/live/domain.ga/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/domain.ga/privkey.pem;
 	ssl_dhparam /etc/letsencrypt/live/domain.ga/dhparam.pem; 
-}
 ```
 
 open nginx.conf and replace the SSL section with this:
