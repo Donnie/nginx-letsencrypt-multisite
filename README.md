@@ -117,15 +117,9 @@ Configure secure MySQL
 ### PHP 7
 Install PHP FastCGI Process Manager and additional SQL Helper Package
 
-`sudo apt-get install php-fpm php-mysql`
+`sudo apt-get install php-curl php-gd php-mbstring php-mcrypt php-xml php-xmlrpc php-fpm php-mysql`
 
-Edit PHP INI file.
-
-You can either browse through FileZilla `/etc/php/7.0/fpm/php.ini`
-
-or use Putty with this command `sudo nano /etc/php/7.0/fpm/php.ini` 
-
-and set `cgi.fix_pathinfo=0`
+`sudo sed -i s/\;cgi\.fix_pathinfo\s*\=\s*1/cgi.fix_pathinfo\=0/ /etc/php/7.0/fpm/php.ini`
 
 Restart PHP
 
@@ -380,4 +374,14 @@ Unzip it
 
 and move the contents to the files directory
 
-`mv -v wordpress/* /var/www/domain.ga/files/`
+`mv -a /var/www/domain.ga/files/wordpress/* /var/www/domain.ga/files/`
+
+adjust file ownership settings
+
+`sudo chown -R www-data:www-data /var/www/domain.ga/files/`
+
+set file group inheritance
+
+`sudo find /var/www/domain.ga/files/ -type d -exec chmod g+s {} \;`
+
+
