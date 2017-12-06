@@ -203,39 +203,6 @@ Add your domain name to Cloudflare and enable the DNS proxy
 
 ### Nginx Server Blocks
 #### Nginx configuration snippets
-
-make a `/etc/nginx/global` folder
-
-put `wordpress.conf` with this
-
-```
-listen 80;
-
-index index.php index.html index.htm index.nginx-debian.html;
-
-location ~ \.php$ {
-	include /etc/nginx/snippets/fastcgi-php.conf;
-	fastcgi_pass unix:/run/php/php7.1-fpm.sock;
-}
-
-location ~ /\.ht {
-	deny all;
-}
-
-location / {
-	try_files $uri $uri/ /index.php?q=$uri&$args;
-}
-
-# SECURITY : Deny all attempts to access PHP Files in the uploads directory
-location ~* /(?:uploads|files)/.*\.php$ {
-	deny all;
-}
-
-# PLUGINS : Enable Rewrite Rules for Yoast SEO SiteMap
-rewrite ^/sitemap_index\.xml$ /index.php?sitemap=1 last;
-rewrite ^/([^/]+?)-sitemap([0-9]+)?\.xml$ /index.php?sitemap=$1&sitemap_n=$2 last;
-```
-
 write `/etc/nginx/sites-available/domain.ga`
 
 ```
@@ -245,8 +212,8 @@ server {
 	root /var/www/domain.ga/files;
 	index index.php index.html index.htm;
 
-	access_log /var/www/domain.ga/log/domain.ga_access_log;
-	error_log  /var/www/domain.ga/log/domain.ga_error_log notice;
+	access_log /var/www/domain.ga/log/access.log;
+	error_log  /var/www/domain.ga/log/error.log notice;
 
 	location ~ \.php$ {
 		try_files $uri =404;
@@ -352,7 +319,7 @@ Add the following lines to renew certs every 1 and 15th day of the month at 2:00
 
 `00 2 15 * * /usr/bin/certbot renew -q`
 
-### Wordpress
+### Wordpress (Optional)
 #### Configure Nginx server block
 
 Replace try_files directive with this
@@ -364,6 +331,9 @@ For additional security add this location block to deny access to php files
 ```
 # SECURITY : Deny all attempts to access PHP Files in the uploads directory
 location ~* /(?:uploads|files)/.*\.php$ {
+	deny all;
+}
+location ~ /\.ht {
 	deny all;
 }
 ```
