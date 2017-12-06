@@ -1,4 +1,4 @@
-# Linode + Ubuntu 16.04 LTS + UFW + Nginx (multi-site) + MySQL + phpMyAdmin + PHP 7 + Let's Encrypt (A+ SSL) + Cloudflare + Wordpress
+# Linode + Ubuntu 16.04 LTS + UFW + Nginx (multi-site) + MySQL + phpMyAdmin + PHP 7.1 + Let's Encrypt (A+ SSL) + Cloudflare + Wordpress
 
 ## Installations
 
@@ -22,7 +22,7 @@ Setup a new Linode with Ubuntu 16.04 LTS
 
 #### Configure SSH key
 1. SSH to your Linode VPS using your root password. You can use FileZilla or Putty both
-2. Create `/root/.ssh`
+2. Create folder `/root/.ssh`
 
 `mkdir ~/.ssh`
 
@@ -46,6 +46,19 @@ You should now be able to login using the SSH key
 
 ### Ubuntu 16.04 LTS
 First thing you should do after logging in via SSH is update
+
+`sudo apt-get update`
+
+#### Install PPA repository for Nginx, Certbot & PHP 
+`sudo apt-get install software-properties-common python-software-properties`
+
+`sudo add-apt-repository ppa:certbot/certbot`
+
+`sudo apt-get install python-certbot-nginx`
+
+`sudo add-apt-repository ppa:ondrej/php`
+
+`sudo add-apt-repository ppa:ondrej/nginx`
 
 `sudo apt-get update`
 
@@ -115,15 +128,17 @@ Configure secure MySQL
 `mysql_secure_installation`
 
 ### PHP 7
-Install PHP FastCGI Process Manager and additional SQL Helper Package
+Install PHP FastCGI Process Manager, additional SQL Helper Package and with other plugins like curl, mcrypt, etc.
 
-`sudo apt-get install php-curl php-gd php-mbstring php-mcrypt php-xml php-xmlrpc php-fpm php-mysql`
+`sudo apt install php7.1 php7.1-bcmath php7.1-bz2 php7.1-cli php7.1-common php7.1-curl php7.1-fpm php7.1-gd php7.1-intl php7.1-json php7.1-mbstring php7.1-mcrypt php7.1-mysql php7.1-opcache php7.1-pspell php7.1-soap php7.1-tidy php7.1-xml php7.1-xmlrpc php7.1-xsl php7.1-zip`
 
-`sudo sed -i s/\;cgi\.fix_pathinfo\s*\=\s*1/cgi.fix_pathinfo\=0/ /etc/php/7.0/fpm/php.ini`
+disable fix_pathinfo
+
+`sudo sed -i s/\;cgi\.fix_pathinfo\s*\=\s*1/cgi.fix_pathinfo\=0/ /etc/php/7.1/fpm/php.ini`
 
 Restart PHP
 
-`sudo systemctl restart php7.0-fpm`
+`sudo systemctl restart php7.1-fpm`
 
 ### phpMyAdmin
 `sudo apt-get update`
@@ -136,20 +151,37 @@ The next prompt will ask if you would like `dbconfig-common` to configure a data
 
 The next prompt shall ask you for a password provide the root password for MySQL.
 
-### Install Let's Encrypt (certbot) for SSL
-On Ubuntu systems, the Certbot team maintains a PPA. Once you add it to your list of repositories all you'll need to do is apt-get the following packages.
-
-```
-sudo apt-get update
-sudo apt-get install software-properties-common python-software-properties
-sudo add-apt-repository ppa:certbot/certbot
-sudo apt-get update
-sudo apt-get install python-certbot-nginx
-```
-
 ___
 
 ## Configurations
+
+### PHP FPM Config
+Keep a backup of the existing www.conf file
+
+`mv /etc/php/7.1/fpm/pool.d/www.conf{,.bak}`
+
+Create a new file
+
+`/etc/php/7.1/fpm/pool.d/domain.ga.conf`
+
+and put the following in the file
+```
+[domain.ga]
+user = www-data
+group = www-data
+listen = /run/domain.ga-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+pm = ondemand
+pm.process_idle_timeout = 30s
+pm.max_requests = 512
+pm.max_children = 30
+```
+
+Issue a PHP restart:
+
+`service php7.1-fpm restart`
+
 ### PHP Web root
 
 Create the root folder for the domain
@@ -174,28 +206,7 @@ Add your domain name to Cloudflare and enable the DNS proxy
 
 make a `/etc/nginx/global` folder
 
-put `common.conf` with this text
-
-```
-listen 80;
-
-location / {
-	try_files $uri $uri/ =404;
-}
-
-index index.php index.html index.htm index.nginx-debian.html;
-
-location ~ \.php$ {
-	include /etc/nginx/snippets/fastcgi-php.conf;
-	fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-}
-
-location ~ /\.ht {
-	deny all;
-}
-```
-
-and `wordpress.conf` with this
+put `wordpress.conf` with this
 
 ```
 listen 80;
@@ -204,7 +215,7 @@ index index.php index.html index.htm index.nginx-debian.html;
 
 location ~ \.php$ {
 	include /etc/nginx/snippets/fastcgi-php.conf;
-	fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+	fastcgi_pass unix:/run/php/php7.1-fpm.sock;
 }
 
 location ~ /\.ht {
@@ -225,17 +236,27 @@ rewrite ^/sitemap_index\.xml$ /index.php?sitemap=1 last;
 rewrite ^/([^/]+?)-sitemap([0-9]+)?\.xml$ /index.php?sitemap=$1&sitemap_n=$2 last;
 ```
 
-#### Enable Sites
-
 write `/etc/nginx/sites-available/domain.ga`
 
 ```
 server {
+	listen 80;
+	server_name domain.ga;
 	root /var/www/domain.ga/files;
-		server_name domain.ga;
-		access_log /var/www/domain.ga/log/access.log;
-		error_log /var/www/domain.ga/log/error.log;
-		include /etc/nginx/global/common.conf;
+	index index.php index.html index.htm;
+
+	access_log /var/www/domain.ga/log/domain.ga_access_log;
+	error_log  /var/www/domain.ga/log/domain.ga_error_log notice;
+
+	location ~ \.php$ {
+		try_files $uri =404;
+		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+		include fastcgi_params;
+		fastcgi_read_timeout 300;
+		fastcgi_intercept_errors on;
+		fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+		fastcgi_pass unix:/run/domain.ga-fpm.sock;
+	}
 }
 ```
 
@@ -279,14 +300,14 @@ And put the below lines just before the closing brace
 	ssl on;
 	ssl_certificate /etc/letsencrypt/live/domain.ga/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/domain.ga/privkey.pem;
-	ssl_dhparam /etc/letsencrypt/live/domain.ga/dhparam.pem; 
 ```
 
 open nginx.conf and replace the SSL section with this:
 
 ```
+ssl_dhparam /etc/nginx/dhparam.pem; 
 ssl_protocols TLSv1.2;
-ssl_prefer_server_ciphers on;
+ssl_prefer_server_ciphers on; 
 ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384;
 ssl_ecdh_curve secp384r1; 
 ssl_session_timeout  10m;
@@ -300,7 +321,6 @@ add_header Strict-Transport-Security "max-age=63072000; includeSubDomains";
 add_header X-Frame-Options DENY;
 add_header X-Content-Type-Options nosniff;
 add_header X-XSS-Protection "1; mode=block";
-add_header X-Robots-Tag none; 
 ```
 
 Check Nginx configurations
@@ -316,7 +336,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 Reload Nginx
 
-`service nginx restart`
+`nginx -s reload`
 
 At this point you can access https://domain.ga and run PHP on it.
 
@@ -333,6 +353,29 @@ Add the following lines to renew certs every 1 and 15th day of the month at 2:00
 `00 2 15 * * /usr/bin/certbot renew -q`
 
 ### Wordpress
+#### Configure Nginx server block
+
+Replace try_files directive with this
+
+`try_files $uri $uri/ /index.php?q=$uri&$args;`
+
+For additional security add this location block to deny access to php files
+
+```
+# SECURITY : Deny all attempts to access PHP Files in the uploads directory
+location ~* /(?:uploads|files)/.*\.php$ {
+	deny all;
+}
+```
+
+This one is useful for sitemap links
+
+```
+# PLUGINS : Enable Rewrite Rules for Yoast SEO SiteMap
+rewrite ^/sitemap_index\.xml$ /index.php?sitemap=1 last;
+rewrite ^/([^/]+?)-sitemap([0-9]+)?\.xml$ /index.php?sitemap=$1&sitemap_n=$2 last;
+```
+
 #### Setup MySQL Database with User
 Login to MySQL
 
