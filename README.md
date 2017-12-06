@@ -305,7 +305,7 @@ Reload Nginx
 
 `nginx -s reload`
 
-At this point you can access https://domain.ga and run PHP on it.
+At this point you can access https://domain.ga and see `Hello World` on it.
 
 You should also check if you are getting an A+ SSL rating on https://www.ssllabs.com/ssltest/analyze.html?d=domain.ga
 
@@ -397,4 +397,5 @@ set file group inheritance
 
 `sudo find /var/www/domain.ga/files/ -type d -exec chmod g+s {} \;`
 
+At this point you can visit your domain https://domain.ga and finish the Wordpress installation with the correct database credentials
 
