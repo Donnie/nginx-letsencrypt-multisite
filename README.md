@@ -255,7 +255,9 @@ sudo certbot certonly --webroot -w /var/www/domain.ga/files/ -d domain.ga
 
 #### Create a strong Diffie-Hellman parameter
 
-`openssl dhparam -out /etc/letsencrypt/live/domain.ga/dhparam.pem 4096`
+`openssl dhparam -out /etc/nginx/dhparam.pem 4096`
+
+This will take sometime, go and grab a coffee
 
 #### Append Nginx SSL Server Block
 Open `/etc/nginx/sites-available/domain.ga`
