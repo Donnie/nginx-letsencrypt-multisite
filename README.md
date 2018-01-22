@@ -21,7 +21,7 @@ Setup a new Linode with Ubuntu 16.04 LTS
 10. Right-click on the text label showing the pub key value and save it as "authorized_keys"
 
 #### Configure SSH key
-1. SSH to your Linode VPS using your root password. You can use FileZilla or Putty both
+1. SSH to your Linode VPS using your root password. You can use FileZilla or Putty or both
 2. Create folder `/root/.ssh`
 
 `mkdir ~/.ssh`
@@ -42,12 +42,21 @@ You should now be able to login using the SSH key
 
 `PasswordAuthentication yes` to `PasswordAuthentication no`
 
+This would disable password based login and would allow only SSH access, so make sure you have a working SSH key before doing this.
+
 7. Hit reboot `reboot`
 
 ### Ubuntu 16.04 LTS
 First thing you should do after logging in via SSH is update
 
 `sudo apt-get update`
+
+if update is getting stuck then force IPv4, edit /etc/gai.conf and delete the pound (#) from this line
+`#precedence ::ffff:0:0/96  100`
+
+then set timezone
+
+`timedatectl set-timezone "Asia/Kolkata"`
 
 #### Install PPA repository for Nginx, Certbot & PHP 
 `sudo apt-get install software-properties-common python-software-properties`
@@ -116,12 +125,14 @@ Commercial support is available at nginx.com.
 Thank you for using nginx.
 ```
 
-At this point you are good enough to serve static html files 
+At this point you are good enough to serve static html files from `/var/www/html` webroot
 
 ### MySQL
 Install MySQL
 
 `sudo apt-get install mysql-server`
+
+Take care to use a strong password and keep it saved somewhere else
 
 Configure secure MySQL
 
@@ -132,7 +143,7 @@ Install PHP FastCGI Process Manager, additional SQL Helper Package and with othe
 
 `sudo apt install php7.1 php7.1-bcmath php7.1-bz2 php7.1-cli php7.1-common php7.1-curl php7.1-fpm php7.1-gd php7.1-intl php7.1-json php7.1-mbstring php7.1-mcrypt php7.1-mysql php7.1-opcache php7.1-pspell php7.1-soap php7.1-tidy php7.1-xml php7.1-xmlrpc php7.1-xsl php7.1-zip`
 
-disable fix_pathinfo
+disable fix_pathinfo for better security
 
 `sudo sed -i s/\;cgi\.fix_pathinfo\s*\=\s*1/cgi.fix_pathinfo\=0/ /etc/php/7.1/fpm/php.ini`
 
@@ -149,7 +160,7 @@ When asked to choose between `apache` and `lighttpd` choose none and simply pres
 
 The next prompt will ask if you would like `dbconfig-common` to configure a database for phpmyadmin to use. Select "Yes" to continue.
 
-The next prompt shall ask you for a password provide the root password for MySQL.
+The next prompt shall ask you the password, provide the MySQL root password.
 
 ___
 
@@ -184,7 +195,7 @@ Issue a PHP restart:
 
 ### PHP Web root
 
-Create the root folder for the domain
+Create the root folder for the domain (assuming domain.ga)
 
 `mkdir /var/www/domain.ga/files`
 
@@ -235,7 +246,7 @@ Reload Nginx
 
 `service nginx restart`
 
-At this point you are ready to talk PHP on domain.ga
+At this point you are ready to talk PHP on domain.ga, visit domain.ga to make sure you see the 'Hello World' message
 
 ### phpMyAdmin web link
 
@@ -309,7 +320,8 @@ Reload Nginx
 
 At this point you can access https://domain.ga and see `Hello World` on it.
 
-You should also check if you are getting an A+ SSL rating on https://www.ssllabs.com/ssltest/analyze.html?d=domain.ga
+You should also check if you are getting an A+ SSL rating
+Visit https://www.ssllabs.com/ssltest/analyze.html?d=domain.ga after disabling DNS proxy on Cloudflare
 
 #### Auto-renew using crontab:
 
@@ -400,4 +412,17 @@ set file group inheritance
 `sudo find /var/www/domain.ga/files/ -type d -exec chmod g+s {} \;`
 
 At this point you can visit your domain https://domain.ga and finish the Wordpress installation with the correct database credentials
+
+### Adding new sites
+1. Create folder in /var/www/ with files and log directory
+2. Add PHP-FPM config file into /etc/php/7.1/fpm/pool.d for the new site
+3. Add the server block to /etc/nginx/sites-available and create shortcut of it on sites-enabled
+4. Restart PHP
+5. Restart Nginx
+6. Get an SSL certificate from Let's Encrypt
+7. Add SSL server block to server configuration file in /etc/nginx/sites-available/
+8. Restart Nginx
+9. Add site to cloudflare
+10. Edit wp-config.php file and connect with database
+11. rename Facebook plugin folder if there is an error with Wordpress, it's known to create troubles while shifting hosts
 
