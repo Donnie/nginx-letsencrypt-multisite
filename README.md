@@ -276,10 +276,29 @@ Open `/etc/nginx/sites-available/domain.ga`
 And put the below lines just before the closing brace
 
 ```
-	listen 443 ssl;	
+server {
+	listen 443 ssl;
+	server_name domain.ga;
+	root /var/www/domain.ga/files;
+	index index.php index.html index.htm;
+
+	access_log /var/www/domain.ga/log/access.log;
+	error_log  /var/www/domain.ga/log/error.log notice;
+
 	ssl on;
 	ssl_certificate /etc/letsencrypt/live/domain.ga/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/domain.ga/privkey.pem;
+
+	location ~ \.php$ {
+		try_files $uri =404;
+		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+		include fastcgi_params;
+		fastcgi_read_timeout 300;
+		fastcgi_intercept_errors on;
+		fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
+		fastcgi_pass unix:/run/domain.ga-fpm.sock;
+	}
+}
 ```
 
 open nginx.conf and replace the SSL section with this:
