@@ -397,7 +397,7 @@ Create new database
 
 Grant privileges
 
-`GRANT ALL PRIVILEGES ON domain_blog. * TO 'newuser'@'localhost';`
+`GRANT ALL PRIVILEGES ON domain_blog. * TO 'newuser'@'localhost' IDENTIFIED BY 'password';`
 
 Reload privileges
 
