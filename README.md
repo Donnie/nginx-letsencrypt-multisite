@@ -165,6 +165,7 @@ The next prompt shall ask you the password, provide the MySQL root password.
 ___
 
 ## Configurations
+For the purpose of this configuration part let's assume you are setting up the VPS for the first time. And the domain you are setting up is `domain.ga`. You can substitute `domain.ga` with your own domain name.
 
 ### PHP FPM Config
 Keep a backup of the existing www.conf file
@@ -273,7 +274,7 @@ This will take sometime, go and grab a coffee
 #### Append Nginx SSL Server Block
 Open `/etc/nginx/sites-available/domain.ga`
 
-And put the below lines just before the closing brace
+And append the below lines after the first server block
 
 ```
 server {
