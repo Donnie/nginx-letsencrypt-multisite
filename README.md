@@ -269,7 +269,9 @@ sudo certbot certonly --webroot -w /var/www/domain.ga/files/ -d domain.ga
 
 `openssl dhparam -out /etc/nginx/dhparam.pem 4096`
 
-This will take sometime, go and grab a coffee
+This will take sometime, go and grab a coffee.
+OR
+You can use the dhparam.pem file available with this repo and put it in the nginx directory.
 
 #### Append Nginx SSL Server Block
 Open `/etc/nginx/sites-available/domain.ga`
