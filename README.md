@@ -125,6 +125,8 @@ Commercial support is available at nginx.com.
 Thank you for using nginx.
 ```
 
+PS: If you are using Amazon EC2, then make sure your security group allows `0.0.0.0/0` in HTTP and HTTPS
+
 At this point you are good enough to serve static html files from `/var/www/html` webroot
 
 ### MySQL
