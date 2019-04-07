@@ -1,4 +1,4 @@
-# Linode + Ubuntu 16.04 LTS + UFW + Nginx (multi-site) + MySQL + phpMyAdmin + PHP 7.1 + Let's Encrypt (A+ SSL) + Cloudflare + Wordpress
+# Linode + Ubuntu 16.04 LTS + UFW + Nginx (multi-site) + MySQL + phpMyAdmin + PHP 7.2 + Let's Encrypt (A+ SSL) + Cloudflare + Wordpress
 
 ## Installations
 
@@ -143,15 +143,15 @@ Configure secure MySQL
 ### PHP 7
 Install PHP FastCGI Process Manager, additional SQL Helper Package and with other plugins like curl, mcrypt, etc.
 
-`sudo apt install php7.1 php7.1-bcmath php7.1-bz2 php7.1-cli php7.1-common php7.1-curl php7.1-fpm php7.1-gd php7.1-intl php7.1-json php7.1-mbstring php7.1-mcrypt php7.1-mysql php7.1-opcache php7.1-pspell php7.1-soap php7.1-tidy php7.1-xml php7.1-xmlrpc php7.1-xsl php7.1-zip`
+`sudo apt install php7.2 php7.2-bcmath php7.2-bz2 php7.2-cli php7.2-common php7.2-curl php7.2-fpm php7.2-gd php7.2-intl php7.2-json php7.2-mbstring php7.2-mcrypt php7.2-mysql php7.2-opcache php7.2-pspell php7.2-soap php7.2-tidy php7.2-xml php7.2-xmlrpc php7.2-xsl php7.2-zip`
 
 disable fix_pathinfo for better security
 
-`sudo sed -i s/\;cgi\.fix_pathinfo\s*\=\s*1/cgi.fix_pathinfo\=0/ /etc/php/7.1/fpm/php.ini`
+`sudo sed -i s/\;cgi\.fix_pathinfo\s*\=\s*1/cgi.fix_pathinfo\=0/ /etc/php/7.2/fpm/php.ini`
 
 Restart PHP
 
-`sudo systemctl restart php7.1-fpm`
+`sudo systemctl restart php7.2-fpm`
 
 ### phpMyAdmin
 `sudo apt-get update`
@@ -172,11 +172,11 @@ For the purpose of this configuration part let's assume you are setting up the V
 ### PHP FPM Config
 Keep a backup of the existing www.conf file
 
-`mv /etc/php/7.1/fpm/pool.d/www.conf{,.bak}`
+`mv /etc/php/7.2/fpm/pool.d/www.conf{,.bak}`
 
 Create a new file
 
-`/etc/php/7.1/fpm/pool.d/domain.ga.conf`
+`/etc/php/7.2/fpm/pool.d/domain.ga.conf`
 
 and put the following in the file
 ```
@@ -194,7 +194,7 @@ pm.max_children = 30
 
 Issue a PHP restart:
 
-`service php7.1-fpm restart`
+`service php7.2-fpm restart`
 
 ### PHP Web root
 
@@ -439,7 +439,7 @@ At this point you can visit your domain https://domain.ga and finish the Wordpre
 
 ### Adding new sites
 1. Create folder in /var/www/ with files and log directory
-2. Add PHP-FPM config file into /etc/php/7.1/fpm/pool.d for the new site
+2. Add PHP-FPM config file into /etc/php/7.2/fpm/pool.d for the new site
 3. Add the server block to /etc/nginx/sites-available and create shortcut of it on sites-enabled
 4. Restart PHP
 5. Restart Nginx
