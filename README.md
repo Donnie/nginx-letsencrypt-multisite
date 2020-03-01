@@ -1,12 +1,12 @@
-# Linode + Ubuntu 16.04 LTS + UFW + Nginx (multi-site) + MySQL + phpMyAdmin + PHP 7.2 + Let's Encrypt (A+ SSL) + Cloudflare + Wordpress
+# Linode/DO + Ubuntu 16.04 LTS + UFW + Nginx (multi-site) + MySQL + phpMyAdmin + PHP 7.2 + Let's Encrypt (A+ SSL) + Cloudflare + Wordpress
 
 ## Installations
 
-### Set up SSH key on a Linode Box
+### Set up SSH key on a Linode/DO
 
-#### Linode
+#### Linode / Digital Ocean
 
-Setup a new Linode with Ubuntu 16.04 LTS
+Setup a new Linode or a Digital Ocean Droplet with Ubuntu 16.04 LTS
 
 #### Create SSH key
 1. Download PuttyGen
