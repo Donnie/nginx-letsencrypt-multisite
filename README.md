@@ -143,7 +143,7 @@ Configure secure MySQL
 ### PHP 7
 Install PHP FastCGI Process Manager, additional SQL Helper Package and with other plugins like curl, mcrypt, etc.
 
-`sudo apt install php7.2 php7.2-bcmath php7.2-bz2 php7.2-cli php7.2-common php7.2-curl php7.2-fpm php7.2-gd php7.2-intl php7.2-json php7.2-mbstring php7.2-mcrypt php7.2-mysql php7.2-opcache php7.2-pspell php7.2-soap php7.2-tidy php7.2-xml php7.2-xmlrpc php7.2-xsl php7.2-zip`
+`sudo apt install php7.2 php7.2-bcmath php7.2-bz2 php7.2-cli php7.2-common php7.2-curl php7.2-fpm php7.2-gd php7.2-intl php7.2-json php7.2-mbstring php7.2-mysql php7.2-opcache php7.2-pspell php7.2-soap php7.2-tidy php7.2-xml php7.2-xmlrpc php7.2-xsl php7.2-zip`
 
 disable fix_pathinfo for better security
 
@@ -200,17 +200,15 @@ Issue a PHP restart:
 
 Create the root folder for the domain (assuming domain.ga)
 
-`mkdir /var/www/domain.ga/files`
+`mkdir -p /var/www/domain.ga/{files,log}`
 
-and add `index.php` with a line of code
+Inside `files` add `index.php` with a line of code
 
-`<?php echo 'Hello World';`
+`echo "<?php echo 'Hello World';" >> /var/www/domain.ga/files/index.php`
 
-create the log folder
+inside the `log` folder create blank files
 
-`mkdir /var/www/domain.ga/log`
-
-create blank `access.log` and `error.log` files in the log folder
+`touch access.log error.log`
 
 ### Cloudflare
 Add your domain name to Cloudflare and enable the DNS proxy
@@ -290,7 +288,6 @@ server {
 	access_log /var/www/domain.ga/log/access.log;
 	error_log  /var/www/domain.ga/log/error.log notice;
 
-	ssl on;
 	ssl_certificate /etc/letsencrypt/live/domain.ga/fullchain.pem;
 	ssl_certificate_key /etc/letsencrypt/live/domain.ga/privkey.pem;
 
@@ -353,9 +350,8 @@ Visit https://www.ssllabs.com/ssltest/analyze.html?d=domain.ga after disabling D
 
 Add the following lines to renew certs every 1 and 15th day of the month at 2:00am
 
-`00 2 1 * * /usr/bin/certbot renew -q`
-
-`00 2 15 * * /usr/bin/certbot renew -q`
+`00 2 1 * * /usr/bin/certbot renew -q
+00 2 15 * * /usr/bin/certbot renew -q`
 
 ### Wordpress (Optional)
 #### Configure Nginx server block
