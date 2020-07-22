@@ -61,6 +61,8 @@ then set timezone
 #### Install PPA repository for Nginx, Certbot & PHP 
 `sudo apt-get install software-properties-common python-software-properties`
 
+`sudo apt-get install python3-pyasn1`
+
 `sudo add-apt-repository ppa:certbot/certbot`
 
 `sudo apt-get install python-certbot-nginx`
